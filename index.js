@@ -55,6 +55,8 @@ mobileMenuBtn.onclick = function() {
 const fileInput = document.getElementById("fileinput");
 const dropzone = document.getElementById("dropzone");
 const selectedFileName = document.getElementById("selectedFileName");
+const loader = document.getElementById("loader");
+const loaderText = document.getElementById("loaderText");
 let uploadedTextContent = "";
 
 // Click to browse
@@ -109,14 +111,18 @@ function readFileAsText(file) {
         if (selectedFileName) {
             selectedFileName.textContent = file.name;
         }
+        hideLoading();
+        result.textContent = "File ready. Click 'Check The ATS Score !'";
     };
     reader.onerror = function() {
+        hideLoading();
         result.textContent = "Error reading file.";
     };
     reader.readAsText(file);
 }
 
 async function extractTextFromPdf(file) {
+    showLoading("Scanning PDF...");
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await window['pdfjsLib'].getDocument({ data: arrayBuffer }).promise;
     let fullText = "";
@@ -126,11 +132,14 @@ async function extractTextFromPdf(file) {
         const strings = content.items.map(function(item) { return item.str; });
         fullText += strings.join(" ") + "\n";
     }
+    hideLoading();
     return fullText;
 }
 
 async function extractTextFromImage(file) {
+    showLoading("Running OCR on image...");
     const { data } = await Tesseract.recognize(file, 'eng');
+    hideLoading();
     return data && data.text ? data.text : "";
 }
 
@@ -142,6 +151,7 @@ async function handleFileSelection(file) {
 
     try {
         if (name.endsWith('.txt') || name.endsWith('.csv')) {
+            showLoading("Reading file...");
             readFileAsText(file);
         } else if (name.endsWith('.pdf')) {
             const text = await extractTextFromPdf(file);
@@ -157,15 +167,25 @@ async function handleFileSelection(file) {
         }
     } catch (e) {
         uploadedTextContent = "";
+        hideLoading();
         result.textContent = "Error processing file: " + (e && e.message ? e.message : e);
         console.error(e);
     }
 }
 
+function showLoading(message) {
+    if (loader && loader.classList) loader.classList.remove("d");
+    if (loaderText) loaderText.textContent = message || "Processing...";
+}
+
+function hideLoading() {
+    if (loader && loader.classList) loader.classList.add("d");
+}
+
 
 function handleFile() {
     if (!uploadedTextContent || uploadedTextContent.trim() === "") {
-        result.textContent = "Please upload a .txt resume file first.";
+        result.textContent = "Please upload a file first (.txt, .pdf, .png/.jpg, or .csv).";
         return;
     }
     let gemini_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBzG0HUPFWEWm7Dhut8Au-Z7nPX0i1yyOA";
@@ -185,11 +205,13 @@ function handleFile() {
 
 
 
+    showLoading("Analyzing with AI...");
     fetch(gemini_url, gemini_config)
         .then(function(response) {
             return response.json();
         })
         .then(function(response) {
+            hideLoading();
             let var1 = response.candidates[0];
             let var2 = var1.content.parts[0];
             let geminiText = var2.text;
@@ -197,6 +219,7 @@ function handleFile() {
             console.log(geminiText);
         })
         .catch(function(error) {
+            hideLoading();
             result.textContent = "Error: " + error.message;
             console.error("API Error:", error);
         });

@@ -243,6 +243,11 @@
                     <div id="selectedFileName" style="margin-top:8px; color:#666; font-size:12px;"></div>
                     <input type="file" id="fileinput" accept=".txt,.pdf,.csv,.png,.jpg,.jpeg" style="display:none;" />
                 </div>
+                <!-- Loader -->
+                <div id="loader" class="loader d" aria-live="polite" aria-busy="true">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <div id="loaderText" class="loader-text">Processing...</div>
+                </div>
                 <div class="text-center pt-3">
                     <button class="btn-primary p-2 rounded-lg" id="upload-pdf-button" onclick="handleFile()">Check The ATS Score !</button>
                 </div>

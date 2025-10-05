@@ -35,6 +35,32 @@ nav a, .nav-links a { color: var(--text); }
 .upload-area { border-color: var(--border); }
 .upload-area.dragover { background-color: rgba(65,105,225,0.06); }
 
+/* Loader */
+.loader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    border-radius: 8px;
+}
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0,0,0,0.1);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.loader-text { color: var(--muted); font-size: 14px; }
+.dark .spinner { border-color: rgba(255,255,255,0.2); border-top-color: var(--primary); }
+.dark .loader { background-color: var(--surface); border-color: var(--border); }
+
 .theme-toggle {
     background: none;
     border: 1px solid var(--border);
