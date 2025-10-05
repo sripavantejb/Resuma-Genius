@@ -84,14 +84,7 @@ if (dropzone) {
         const files = e.dataTransfer && e.dataTransfer.files;
         if (files && files.length > 0) {
             const file = files[0];
-            const name = (file.name || "").toLowerCase();
-            if (!name.endsWith('.txt')) {
-                selectedFileName && (selectedFileName.textContent = `${file.name} (not supported for scoring)`);
-                uploadedTextContent = "";
-                result.textContent = "Only .txt files can be analyzed for ATS score right now.";
-                return;
-            }
-            readFileAsText(file);
+            handleFileSelection(file);
         }
     });
 }
@@ -103,14 +96,7 @@ if (fileInput) {
         const files = target && target.files;
         if (files && files.length > 0) {
             const file = files[0];
-            const name = (file.name || "").toLowerCase();
-            if (!name.endsWith('.txt')) {
-                selectedFileName && (selectedFileName.textContent = `${file.name} (not supported for scoring)`);
-                uploadedTextContent = "";
-                result.textContent = "Only .txt files can be analyzed for ATS score right now.";
-                return;
-            }
-            readFileAsText(file);
+            handleFileSelection(file);
         }
     });
 }
@@ -128,6 +114,52 @@ function readFileAsText(file) {
         result.textContent = "Error reading file.";
     };
     reader.readAsText(file);
+}
+
+async function extractTextFromPdf(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await window['pdfjsLib'].getDocument({ data: arrayBuffer }).promise;
+    let fullText = "";
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const content = await page.getTextContent();
+        const strings = content.items.map(function(item) { return item.str; });
+        fullText += strings.join(" ") + "\n";
+    }
+    return fullText;
+}
+
+async function extractTextFromImage(file) {
+    const { data } = await Tesseract.recognize(file, 'eng');
+    return data && data.text ? data.text : "";
+}
+
+async function handleFileSelection(file) {
+    if (!file) return;
+    const name = (file.name || "").toLowerCase();
+    selectedFileName && (selectedFileName.textContent = file.name);
+    result.textContent = "Processing file...";
+
+    try {
+        if (name.endsWith('.txt') || name.endsWith('.csv')) {
+            readFileAsText(file);
+        } else if (name.endsWith('.pdf')) {
+            const text = await extractTextFromPdf(file);
+            uploadedTextContent = text;
+            result.textContent = "PDF extracted. Ready to analyze.";
+        } else if (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
+            const text = await extractTextFromImage(file);
+            uploadedTextContent = text;
+            result.textContent = "Image text extracted via OCR. Ready to analyze.";
+        } else {
+            uploadedTextContent = "";
+            result.textContent = "Unsupported file type. Please upload .txt, .pdf, .png, .jpg/.jpeg, or .csv.";
+        }
+    } catch (e) {
+        uploadedTextContent = "";
+        result.textContent = "Error processing file: " + (e && e.message ? e.message : e);
+        console.error(e);
+    }
 }
 
 
