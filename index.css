@@ -831,14 +831,33 @@ body {
 /* Make the result area more visible */
 #result {
     margin-top: 30px;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    min-height: 50px;
+    padding: 24px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-height: 64px;
     white-space: pre-wrap;
     word-break: break-word;
     font-family: inherit;
+    color: var(--text);
 }
+
+/* Score badge styling */
+.score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 9999px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+.score-good { background-color: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+.score-mid  { background-color: rgba(241, 196, 15, 0.15); color: #f1c40f; }
+.score-bad  { background-color: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+.dark .score-good { color: #2ecc71; }
+.dark .score-mid  { color: #f1c40f; }
+.dark .score-bad  { color: #e74c3c; }
 
 
 

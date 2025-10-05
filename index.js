@@ -158,20 +158,16 @@ async function handleFileSelection(file) {
     result.textContent = "Processing file...";
 
     try {
-        if (name.endsWith('.txt') || name.endsWith('.csv')) {
+        if (name.endsWith('.txt')) {
             showLoading("Reading file...");
             readFileAsText(file);
         } else if (name.endsWith('.pdf')) {
             const text = await extractTextFromPdf(file);
             uploadedTextContent = text;
             result.textContent = "PDF extracted. Ready to analyze.";
-        } else if (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg')) {
-            const text = await extractTextFromImage(file);
-            uploadedTextContent = text;
-            result.textContent = "Image text extracted via OCR. Ready to analyze.";
         } else {
             uploadedTextContent = "";
-            result.textContent = "Unsupported file type. Please upload .txt, .pdf, .png, .jpg/.jpeg, or .csv.";
+            result.textContent = "Please attach only resume files (.pdf or .txt).";
         }
     } catch (e) {
         uploadedTextContent = "";
@@ -234,7 +230,15 @@ function handleFile() {
                         console.warn("Unexpected response shape:", json);
                         return;
                     }
-                    result.textContent = outputText;
+                    // Try to detect a 0-100 score and render a badge
+                    var scoreMatch = outputText.match(/\b(100|[1-9]?\d)\b/);
+                    if (scoreMatch) {
+                        var score = parseInt(scoreMatch[1], 10);
+                        var cls = score >= 70 ? 'score-good' : (score >= 40 ? 'score-mid' : 'score-bad');
+                        result.innerHTML = '<div class="score-badge ' + cls + '">ATS Score: ' + score + '/100</div>' + '\n' + outputText;
+                    } else {
+                        result.textContent = outputText;
+                    }
                     console.log(outputText);
                     return;
                 }
