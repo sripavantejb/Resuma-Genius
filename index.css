@@ -865,3 +865,8 @@ body {
 .dark .remember-option, 
 .dark .existing-account-link, 
 .dark .register-account-link { color: var(--muted); }
+/* Ensure key resume headings are white in dark mode */
+.dark .hero-title,
+.dark .header h1,
+.dark .upload-container h3,
+.dark .feature-card h3 { color: #ffffff; }
