@@ -124,7 +124,15 @@ function readFileAsText(file) {
 async function extractTextFromPdf(file) {
     showLoading("Scanning PDF...");
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await window['pdfjsLib'].getDocument({ data: arrayBuffer }).promise;
+    if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
+    const pdfjs = window.pdfjsLib || window['pdfjsLib'];
+    if (!pdfjs || !pdfjs.getDocument) {
+        hideLoading();
+        throw new Error("PDF.js failed to load. Please refresh and try again.");
+    }
+    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
     let fullText = "";
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const page = await pdf.getPage(pageNum);
@@ -207,20 +215,39 @@ function handleFile() {
 
     showLoading("Analyzing with AI...");
     fetch(gemini_url, gemini_config)
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(response) {
+        .then(function(response) { return response.json(); })
+        .then(function(json) {
             hideLoading();
-            let var1 = response.candidates[0];
-            let var2 = var1.content.parts[0];
-            let geminiText = var2.text;
-            result.textContent = geminiText;
-            console.log(geminiText);
+            try {
+                if (json.error) {
+                    result.textContent = "API Error: " + (json.error.message || JSON.stringify(json.error));
+                    console.error("API Error payload:", json);
+                    return;
+                }
+                if (json.candidates && json.candidates.length > 0) {
+                    var candidate = json.candidates[0];
+                    var parts = (candidate.content && candidate.content.parts) || candidate.parts || [];
+                    var textPart = parts.find(function(p){ return typeof p.text === 'string'; });
+                    var outputText = textPart ? textPart.text : (candidate.output_text || "");
+                    if (!outputText) {
+                        result.textContent = "No text returned. Please try again.";
+                        console.warn("Unexpected response shape:", json);
+                        return;
+                    }
+                    result.textContent = outputText;
+                    console.log(outputText);
+                    return;
+                }
+                result.textContent = "Unexpected response. Please try again later.";
+                console.warn("Unexpected response:", json);
+            } catch (e) {
+                result.textContent = "Failed to parse response.";
+                console.error("Parse error:", e, json);
+            }
         })
         .catch(function(error) {
             hideLoading();
-            result.textContent = "Error: " + error.message;
+            result.textContent = "Network/Error: " + error.message;
             console.error("API Error:", error);
         });
 }
