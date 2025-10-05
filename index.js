@@ -84,6 +84,13 @@ if (dropzone) {
         const files = e.dataTransfer && e.dataTransfer.files;
         if (files && files.length > 0) {
             const file = files[0];
+            const name = (file.name || "").toLowerCase();
+            if (!name.endsWith('.txt')) {
+                selectedFileName && (selectedFileName.textContent = `${file.name} (not supported for scoring)`);
+                uploadedTextContent = "";
+                result.textContent = "Only .txt files can be analyzed for ATS score right now.";
+                return;
+            }
             readFileAsText(file);
         }
     });
@@ -95,7 +102,15 @@ if (fileInput) {
         const target = e.target;
         const files = target && target.files;
         if (files && files.length > 0) {
-            readFileAsText(files[0]);
+            const file = files[0];
+            const name = (file.name || "").toLowerCase();
+            if (!name.endsWith('.txt')) {
+                selectedFileName && (selectedFileName.textContent = `${file.name} (not supported for scoring)`);
+                uploadedTextContent = "";
+                result.textContent = "Only .txt files can be analyzed for ATS score right now.";
+                return;
+            }
+            readFileAsText(file);
         }
     });
 }

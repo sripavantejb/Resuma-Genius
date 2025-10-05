@@ -229,7 +229,7 @@
 
             <div id="analyze-button" class="upload-container">
                 <h3>Upload Your Resume</h3>
-                <p>Drag & drop your file here, or click to browse. Supported: .txt</p>
+                <p>Drag & drop your file here, or click to browse. Supported for scoring: .txt (you can select .pdf/.doc/.docx but they won't be analyzed)</p>
                 <div class="upload-area" id="dropzone">
                     <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -238,7 +238,7 @@
                     </svg>
                     <div class="upload-text">Drop your resume file here or click to upload</div>
                     <div id="selectedFileName" style="margin-top:8px; color:#666; font-size:12px;"></div>
-                    <input type="file" id="fileinput" accept=".txt" style="display:none;" />
+                    <input type="file" id="fileinput" accept=".txt,.pdf,.doc,.docx" style="display:none;" />
                 </div>
                 <div class="text-center pt-3">
                     <button class="btn-primary p-2 rounded-lg" id="upload-pdf-button" onclick="handleFile()">Check The ATS Score !</button>
