@@ -484,20 +484,25 @@ nav {
         display: none;
         position: fixed;
         top: 0;
-        left: 0;
         right: 0;
-        bottom: 0;
-        background-color: white;
+        height: 100vh;
+        width: 80%;
+        max-width: 360px;
+        background-color: var(--surface);
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        z-index: 5;
+        z-index: 20;
         gap: 2rem;
+        box-shadow: -8px 0 24px rgba(0,0,0,0.15);
+        transform: translateX(100%);
+        transition: transform 0.25s ease-in-out;
     }
 
     /* Show nav links when toggled */
     .nav-links.show {
         display: flex;
+        transform: translateX(0%);
     }
 
     /* Show mobile menu button */
@@ -524,6 +529,18 @@ nav {
         font-size: 1rem;
     }
 }
+
+/* Overlay for mobile menu */
+.nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 15;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+}
+.nav-overlay.show { opacity: 1; }
+.dark .nav-links { background-color: var(--surface); }
 
 * {
     margin: 0;

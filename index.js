@@ -10,6 +10,7 @@ const mobileMenuBtn = document.getElementById("mobileMenuBtn");
 const navLinks = document.getElementById("navLinks");
 const menuIcon = document.querySelector(".menu-icon");
 const closeIcon = document.querySelector(".close-icon");
+const navOverlay = document.getElementById("navOverlay");
 const themeToggle = document.getElementById("themeToggle");
 const themeIcon = document.getElementById("themeIcon");
 
@@ -39,17 +40,50 @@ if (goToLogin) {
 }
 
 
+function openMenu() {
+    navLinks.classList.add("show");
+    navOverlay && navOverlay.classList.add("show");
+    navOverlay && navOverlay.classList.remove("d");
+    if (mobileMenuBtn) mobileMenuBtn.setAttribute("aria-expanded", "true");
+    menuIcon.style.display = "none";
+    closeIcon.style.display = "block";
+}
+
+function closeMenu() {
+    navLinks.classList.remove("show");
+    navOverlay && navOverlay.classList.remove("show");
+    navOverlay && navOverlay.classList.add("d");
+    if (mobileMenuBtn) mobileMenuBtn.setAttribute("aria-expanded", "false");
+    menuIcon.style.display = "block";
+    closeIcon.style.display = "none";
+}
+
 mobileMenuBtn.onclick = function() {
-    navLinks.classList.toggle("show");
-
-
-    if (menuIcon.style.display === "none") {
-        menuIcon.style.display = "block";
-        closeIcon.style.display = "none";
+    if (navLinks.classList.contains("show")) {
+        closeMenu();
     } else {
-        menuIcon.style.display = "none";
-        closeIcon.style.display = "block";
+        openMenu();
     }
+}
+
+if (navOverlay) {
+    navOverlay.addEventListener("click", closeMenu);
+}
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && navLinks.classList.contains("show")) {
+        closeMenu();
+    }
+});
+
+// Close the menu when clicking links/buttons inside it (on mobile)
+if (navLinks) {
+    navLinks.addEventListener("click", function(e) {
+        const target = e.target;
+        if (target && (target.tagName === 'A' || target.tagName === 'BUTTON')) {
+            closeMenu();
+        }
+    });
 }
 
 const fileInput = document.getElementById("fileinput");
